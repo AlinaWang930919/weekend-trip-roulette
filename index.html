@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周末出游抽奖盒</title>
+    <meta name="description" content="周末去哪玩？点击抽奖盒，随机选择你的济南周末去处！">
+    <meta name="keywords" content="济南旅游,周末出游,景点推荐,抽奖">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .city-info {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .box-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .lucky-box {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lucky-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .lucky-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent,
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -50%;
+            }
+            50% {
+                left: 150%;
+            }
+            100% {
+                left: 150%;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10% { transform: translateX(-10px) rotate(-2deg); }
+            20% { transform: translateX(10px) rotate(2deg); }
+            30% { transform: translateX(-10px) rotate(-2deg); }
+            40% { transform: translateX(10px) rotate(2deg); }
+            50% { transform: translateX(-5px) rotate(-1deg); }
+            60% { transform: translateX(5px) rotate(1deg); }
+            70% { transform: translateX(-5px) rotate(-1deg); }
+            80% { transform: translateX(5px) rotate(1deg); }
+            90% { transform: translateX(-2px) rotate(0deg); }
+        }
+
+        .lucky-box.shaking {
+            animation: shake 0.6s ease-in-out;
+        }
+
+        .box-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+            z-index: 1;
+        }
+
+        .box-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+
+        .box-ribbon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 30px;
+            background: rgba(255,255,255,0.2);
+            z-index: 1;
+        }
+
+        .box-ribbon::before,
+        .box-ribbon::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+
+        .box-ribbon::before {
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .box-ribbon::after {
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .draw-button {
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            margin-top: 20px;
+        }
+
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .draw-button:active {
+            transform: translateY(0);
+        }
+
+        .draw-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-left: 5px solid #667eea;
+            min-height: 200px;
+        }
+
+        .result-placeholder {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 16px;
+        }
+
+        .result-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .result-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 25px;
+        }
+
+        .result-title .icon {
+            font-size: 36px;
+            margin-right: 10px;
+        }
+
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item .label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .result-item .value {
+            color: #555;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .navigation-section {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .navigation-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .nav-button {
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .nav-button.baidumap {
+            background: #4e6ef2;
+            color: white;
+        }
+
+        .nav-button.amap {
+            background: #2563eb;
+            color: white;
+        }
+
+        .nav-button.tencent {
+            background: #07c160;
+            color: white;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .location-display {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .location-display strong {
+            color: #333;
+        }
+
+        .spots-list {
+            background: #f0f0f0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .spots-list h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .spot-item {
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .spot-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .share-tip {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .share-tip strong {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎁 周末出游抽奖盒 🎁</h1>
+            <div class="city-info" id="cityInfo">
+                <span class="loading">📍 正在获取你的位置...</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="box-section">
+                <div class="lucky-box" id="luckyBox" onclick="draw()">
+                    <div class="box-ribbon"></div>
+                    <div class="box-icon">🎁</div>
+                    <div class="box-text">点击抽奖</div>
+                </div>
+                <button class="draw-button" id="drawButton" onclick="draw()">开始抽奖</button>
+            </div>
+
+            <div class="result-section">
+                <div id="resultPlaceholder" class="result-placeholder">
+                    <span class="icon">🎲</span>
+                    点击抽奖盒，随机选择你的周末去处！
+                </div>
+                <div id="resultContent" class="result-content">
+                    <div class="result-title">
+                        <span class="icon">🎉</span>
+                        <span id="resultName"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">📍 景点介绍</span>
+                        <div class="value" id="resultFeature"></div>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">🎫 门票信息</span>
+                        <div class="value" id="resultPrice"></div>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">🚗 交通方式</span>
+                        <div class="value" id="resultTransport"></div>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">🍜 周边美食</span>
+                        <div class="value" id="resultFood"></div>
+                    </div>
+                    
+                    <div class="navigation-section">
+                        <div class="navigation-title">
+                            🗺️ 地图导航
+                        </div>
+                        <div class="navigation-buttons">
+                            <a href="#" id="baiduMapBtn" class="nav-button baidumap">
+                                百度地图
+                            </a>
+                            <a href="#" id="amapBtn" class="nav-button amap">
+                                高德地图
+                            </a>
+                            <a href="#" id="tencentBtn" class="nav-button tencent">
+                                腾讯地图
+                            </a>
+                        </div>
+                        <div class="location-display">
+                            <strong>目的地：</strong><span id="targetLocation"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="spots-list">
+            <h3>📋 抽奖盒中的景点：</h3>
+            <div class="spots-grid" id="spotsList"></div>
+        </div>
+
+        <div class="share-tip">
+            <strong>💡 提示：</strong>复制当前网址分享给朋友，他们也能访问哦！
+        </div>
+    </div>
+
+    <script>
+        const spots = [
+            {
+                name: "趵突泉景区",
+                feature: "天下第一泉，三股泉水喷涌不息，园内有李清照纪念堂、万竹园等人文景观，清晨和傍晚意境最佳",
+                location: "济南市历下区趵突泉南路1号",
+                transport: "地铁2号线趵突泉站D口出步行5分钟，或公交K5路、K41路、K49路到趵突泉南门站，建议游玩1.5小时",
+                food: "草包包子铺（百年老字号，猪肉灌汤包）、超意兴把子肉（本地人早餐标配）、泉水豆腐脑",
+                color: "#FF6B6B",
+                coords: { lat: 36.6649, lng: 117.0058 }
+            },
+            {
+                name: "大明湖景区",
+                feature: "泉城明珠，5A级免费景区，夏季荷花满湖，冬季雪景如画，超然楼夜景(19:00-22:00亮灯)已成网红打卡地，可乘船游湖或漫步湖畔",
+                location: "济南市历下区大明湖路271号",
+                transport: "地铁2号线大明湖站直达，或公交K11路、K41路、K109路，可乘船游湖（35-50元/人），建议游玩3小时",
+                food: "城南往事（九转大肠、爆炒腰花等鲁菜经典）、老残游记·明湖居（泉水豆腐脑、油旋）、把子肉口味冰淇淋（新晋网红）",
+                color: "#4ECDC4",
+                coords: { lat: 36.6741, lng: 117.0229 }
+            },
+            {
+                name: "黑虎泉泉群",
+                feature: "免费开放的天然泉群，黑虎泉、玛瑙泉、琵琶泉等20余处名泉集中于此，市民常来此打水，可体验接泉水煮茶的乐趣，沿护城河步行至解放阁",
+                location: "济南市历下区黑虎泉西路护城河南岸",
+                transport: "公交K3路、K109路黑虎泉站下车，可沿护城河步行至解放阁，建议游玩1小时，免费开放",
+                food: "泉水茶汤（用泉水冲制的糜子面茶汤）、春江饭店（全家福、爆炒腰花）、解放阁夜市小吃（烤冷面、烤鱿鱼）",
+                color: "#FFE66D",
+                coords: { lat: 36.6680, lng: 117.0295 }
+            },
+            {
+                name: "千佛山风景区",
+                feature: "济南三大名胜之一，海拔285米，山上有兴国禅寺、千佛崖等古迹，登顶可俯瞰济南全景，日出景观尤为惊艳，山腰的兴国禅寺很静谧",
+                location: "济南市历下区经十一路18号",
+                transport: "公交K64路、K115路千佛山站下车，可乘缆车上下山（单程30元，往返50元），建议游玩3小时，门票30元",
+                food: "千佛山医院食堂（把子肉、木须肉等家常菜，便宜实惠）、佛慧山脚下农家乐（炖鸡、炒山野菜，体验田园风味）",
+                color: "#95E1D3",
+                coords: { lat: 36.6355, lng: 117.0096 }
+            },
+            {
+                name: "曲水亭街 & 百花洲",
+                feature: "老济南缩影，家家泉水户户垂杨的明清老街，曲水亭街保留明清建筑，百花洲是仿古商业街，可体验扎风筝、剪纸等非遗项目，夜晚灯笼映照更具古韵",
+                location: "济南市历下区曲水亭街24号",
+                transport: "地铁2号线大明湖站步行5分钟，傍晚光影最佳，建议游玩2小时，免费开放",
+                food: "老街酸奶（手工酸奶搭配蜜豆、葡萄干）、泉水宴餐厅（泉水炖鸡、奶汤蒲菜）、酸蘸儿糖葫芦（糖衣透亮）",
+                color: "#DFE6E9",
+                coords: { lat: 36.6711, lng: 117.0185 }
+            },
+            {
+                name: "泉城广场",
+                feature: "济南市中心广场，标志性建筑泉标象征趵突泉三股水，每晚8点有音乐喷泉表演（夏季延长至8:30），周边商圈繁华，适合夜间散步，灯光秀投射《清明上河图》",
+                location: "济南市历下区泉城路",
+                transport: "地铁1/2号线泉城广场站直达，傍晚看喷泉+夜景最佳，建议游玩1小时，免费开放",
+                food: "宽厚里（国足臭豆腐、怀胎豆腐）、恒隆广场（海底捞、西贝莜面村）、会仙楼饭庄（糖醋里脊）",
+                color: "#FD79A8",
+                coords: { lat: 36.6687, lng: 117.0165 }
+            },
+            {
+                name: "山东博物馆",
+                feature: "华东地区最大的省级博物馆之一，馆藏文物14万件，尤以龙山黑陶、汉代画像石、明清书画最具特色，免费开放需提前预约，特展区常设沉浸式光影展",
+                location: "济南市历下区经十路11899号",
+                transport: "地铁3号线龙奥大厦站，周二至周日9:00-17:00开放（16:00停止入馆），建议游玩3小时，免费需预约",
+                food: "龙奥天街商圈（必胜客、星巴克、太二酸菜鱼）、博物馆餐厅（牛肉汤面简餐，价格实惠）",
+                color: "#A29BFE",
+                coords: { lat: 36.6457, lng: 117.0586 }
+            },
+            {
+                name: "五龙潭公园",
+                feature: "以五龙潭为中心的古典园林，泉水清澈见底，五步一泉十步一潭，园内还有秦琼祠（纪念唐朝名将秦琼），秋日银杏叶落满潭边画面如油画，夏季凉爽宜人",
+                location: "济南市天桥区筐市街18号",
+                transport: "地铁2号线趵突泉站步行10分钟，可与趵突泉串联游览，建议游玩1小时，门票5元",
+                food: "五龙潭南门小吃街（油旋、甜沫、锅贴）、老街巷私房菜（泉水豆腐、爆炒虾仁，隐藏在曲水亭街）",
+                color: "#00B894",
+                coords: { lat: 36.6628, lng: 117.0020 }
+            }
+        ];
+
+        let userCoords = null;
+
+        function initSpotsList() {
+            const spotsList = document.getElementById('spotsList');
+            spots.forEach(spot => {
+                const item = document.createElement('div');
+                item.className = 'spot-item';
+                item.textContent = spot.name;
+                item.style.borderLeftColor = spot.color;
+                spotsList.appendChild(item);
+            });
+        }
+
+        function getUserLocation() {
+            const cityInfo = document.getElementById('cityInfo');
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userCoords = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userCoords.lat}&longitude=${userCoords.lng}&localityLanguage=zh`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const city = data.city || data.locality || data.principalSubdivision || '未知城市';
+                                cityInfo.innerHTML = `📍 当前位置：${city}`;
+                            })
+                            .catch(() => {
+                                cityInfo.innerHTML = `📍 当前位置：${userCoords.lat.toFixed(2)}, ${userCoords.lng.toFixed(2)}`;
+                            });
+                    },
+                    (error) => {
+                        cityInfo.innerHTML = '📍 当前位置：济南（默认）';
+                    }
+                );
+            } else {
+                cityInfo.innerHTML = '📍 当前位置：济南（默认）';
+            }
+        }
+
+        function draw() {
+            const luckyBox = document.getElementById('luckyBox');
+            const button = document.getElementById('drawButton');
+            const resultPlaceholder = document.getElementById('resultPlaceholder');
+            const resultContent = document.getElementById('resultContent');
+            
+            button.disabled = true;
+            resultPlaceholder.style.display = 'block';
+            resultContent.style.display = 'none';
+
+            luckyBox.classList.add('shaking');
+
+            setTimeout(() => {
+                const winningIndex = Math.floor(Math.random() * spots.length);
+                const spot = spots[winningIndex];
+
+                luckyBox.classList.remove('shaking');
+
+                document.getElementById('resultName').textContent = spot.name;
+                document.getElementById('resultFeature').textContent = spot.feature;
+                document.getElementById('resultPrice').textContent = spot.feature.includes('免费') ? '✅ 免费' : '💰 需购票';
+                document.getElementById('resultTransport').textContent = spot.transport;
+                document.getElementById('resultFood').textContent = spot.food;
+                document.getElementById('targetLocation').textContent = spot.location;
+
+                updateNavigationButtons(spot);
+
+                resultPlaceholder.style.display = 'none';
+                resultContent.style.display = 'block';
+                button.disabled = false;
+                button.textContent = '再抽一次';
+
+            }, 600);
+        }
+
+        function updateNavigationButtons(spot) {
+            const baiduBtn = document.getElementById('baiduMapBtn');
+            const amapBtn = document.getElementById('amapBtn');
+            const tencentBtn = document.getElementById('tencentBtn');
+            
+            const destination = encodeURIComponent(spot.location);
+            const name = encodeURIComponent(spot.name);
+            
+            baiduBtn.href = `baidumap://map/direction?destination=name:${name}|latlng:${spot.coords.lat},${spot.coords.lng}&mode=driving`;
+            amapBtn.href = `iosamap://path?sourceApplication=周末出游&dlat=${spot.coords.lat}&dlon=${spot.coords.lng}&dname=${name}&dev=0&t=0`;
+            tencentBtn.href = `qqmap://map/routeplan?type=drive&to=${name}&tocoord=${spot.coords.lat},${spot.coords.lng}&referer=周末出游`;
+            
+            baiduBtn.onclick = (e) => {
+                e.preventDefault();
+                window.open(`https://map.baidu.com/dir/${userCoords ? `${userCoords.lat},${userCoords.lng}` : ''}/${spot.coords.lat},${spot.coords.lng}`, '_blank');
+            };
+            
+            amapBtn.onclick = (e) => {
+                e.preventDefault();
+                window.open(`https://uri.amap.com/navigation?to=${spot.coords.lng},${spot.coords.lat},${name}&mode=car&src=周末出游`, '_blank');
+            };
+            
+            tencentBtn.onclick = (e) => {
+                e.preventDefault();
+                window.open(`https://apis.map.qq.com/uri/v1/marker?marker=coord:${spot.coords.lat},${spot.coords.lng};title=${name}&referer=周末出游`, '_blank');
+            };
+        }
+
+        window.onload = function() {
+            initSpotsList();
+            getUserLocation();
+        };
+    </script>
+</body>
+</html>
